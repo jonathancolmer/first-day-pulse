@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#232d4b">
+  <meta name="description" content="A live first-day class poll for Economics of Sustainability and the Environment.">
+  <title>First-Day Class Pulse</title>
+  <link rel="preconnect" href="https://www.gstatic.com">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="First-Day Class Pulse home">
+      <span class="brand-mark" aria-hidden="true">E</span>
+      <span>
+        <strong>Economics of Sustainability and the Environment</strong>
+        <small>First-Day Class Pulse</small>
+      </span>
+    </a>
+    <div class="header-meta">
+      <span id="roleBadge" class="role-badge" hidden>Presenter</span>
+      <span id="connectionStatus" class="connection-status" aria-live="polite">
+        <span class="status-dot"></span><span>Connecting</span>
+      </span>
+    </div>
+  </header>
+
+  <main>
+    <section id="loadingView" class="centered-view">
+      <div class="loader" aria-hidden="true"></div>
+      <h1>Joining the class pulse…</h1>
+      <p>One moment while we find today’s session.</p>
+    </section>
+
+    <section id="waitingView" class="centered-view" hidden>
+      <div class="eyebrow">Almost ready</div>
+      <h1>The poll hasn’t started yet.</h1>
+      <p>Keep this page open. It will update automatically when your instructor begins.</p>
+    </section>
+
+    <section id="studentView" class="student-shell" hidden>
+      <div class="student-intro">
+        <div class="eyebrow">Welcome to class</div>
+        <h1>Help us see who’s in the room.</h1>
+        <p>Four quick questions. Responses are anonymous and appear in the live class summary.</p>
+      </div>
+
+      <form id="pulseForm" class="form-card" novalidate>
+        <fieldset>
+          <legend><span>1</span> Where are you from?</legend>
+          <p class="field-help">Choose a U.S. state or a country outside the United States.</p>
+          <div class="segmented-control" role="radiogroup" aria-label="Location type">
+            <label>
+              <input type="radio" name="locationType" value="state" checked>
+              <span>U.S. state</span>
+            </label>
+            <label>
+              <input type="radio" name="locationType" value="country">
+              <span>Country outside U.S.</span>
+            </label>
+          </div>
+          <div id="stateField" class="field-row">
+            <label for="state">State</label>
+            <select id="state" name="state" required>
+              <option value="">Choose a state…</option>
+            </select>
+          </div>
+          <div id="countryField" class="field-row" hidden>
+            <label for="country">Country</label>
+            <input id="country" name="country" type="text" maxlength="60" autocomplete="country-name" placeholder="Start typing a country…" list="countrySuggestions">
+            <datalist id="countrySuggestions"></datalist>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend><span>2</span> What year are you in?</legend>
+          <div id="yearChoices" class="choice-grid">
+            <label><input type="radio" name="year" value="First year" required><span>First year</span></label>
+            <label><input type="radio" name="year" value="Second year"><span>Second year</span></label>
+            <label><input type="radio" name="year" value="Third year"><span>Third year</span></label>
+            <label><input type="radio" name="year" value="Fourth year"><span>Fourth year</span></label>
+            <label><input type="radio" name="year" value="Graduate"><span>Graduate</span></label>
+            <label><input type="radio" name="year" value="Other"><span>Other</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend><span>3</span> What is your intended major?</legend>
+          <div class="field-row">
+            <label class="sr-only" for="major">Intended major</label>
+            <input id="major" name="major" type="text" maxlength="80" autocomplete="off" placeholder="e.g., Economics" list="majorSuggestions" required>
+            <datalist id="majorSuggestions"></datalist>
+            <p class="field-help">Undecided is a perfectly good answer.</p>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend><span>4</span> <span id="questionLabel">What environmental issue concerns you most?</span></legend>
+          <div class="field-row">
+            <label class="sr-only" for="answer">Your answer</label>
+            <textarea id="answer" name="answer" rows="3" maxlength="120" placeholder="A word or short phrase works best…" required></textarea>
+            <div class="character-count"><span id="answerCount">0</span>/120</div>
+          </div>
+        </fieldset>
+
+        <div id="formError" class="form-error" role="alert" hidden></div>
+        <button id="submitButton" class="button button-primary button-large" type="submit">Share my response</button>
+        <p class="privacy-note">Anonymous · No name, email, or precise location collected</p>
+      </form>
+    </section>
+
+    <section id="thanksView" class="centered-view success-view" hidden>
+      <div class="success-mark" aria-hidden="true">✓</div>
+      <div class="eyebrow">You’re in</div>
+      <h1>Thanks for checking in.</h1>
+      <p>Your response is part of the live class picture.</p>
+      <button id="editResponseButton" class="button button-secondary" type="button">Edit my response</button>
+    </section>
+
+    <section id="closedView" class="centered-view" hidden>
+      <div class="eyebrow">Responses closed</div>
+      <h1>That’s a wrap.</h1>
+      <p>Your instructor has paused this class pulse.</p>
+    </section>
+
+    <section id="presenterView" class="presenter-shell" hidden>
+      <div class="presenter-topline">
+        <div>
+          <div class="eyebrow">Live class portrait</div>
+          <h1>Who’s in the room?</h1>
+        </div>
+        <div class="response-total" aria-live="polite">
+          <strong id="responseCount">0</strong>
+          <span id="responseNoun">responses</span>
+        </div>
+        <div class="presenter-actions">
+          <button id="toggleCollectionButton" class="button button-secondary" type="button">Pause responses</button>
+          <button id="downloadButton" class="button button-secondary" type="button">Download CSV</button>
+          <button id="newSessionButton" class="button button-secondary" type="button">New session</button>
+        </div>
+      </div>
+
+      <div id="noResponses" class="waiting-dashboard">
+        <div class="live-orbit" aria-hidden="true"><span></span></div>
+        <h2>Waiting for the room to respond…</h2>
+        <p>Results will build here in real time.</p>
+      </div>
+
+      <div id="dashboard" class="dashboard" hidden>
+        <article class="viz-card location-card">
+          <div class="viz-heading">
+            <div><span class="viz-number">01</span><h2>Where we’re from</h2></div>
+            <span id="locationSummary" class="viz-summary"></span>
+          </div>
+          <div id="locationChart" class="bar-chart" role="img" aria-label="Bar chart of student origins"></div>
+        </article>
+
+        <article class="viz-card">
+          <div class="viz-heading">
+            <div><span class="viz-number">02</span><h2>Year in school</h2></div>
+          </div>
+          <div id="yearChart" class="bar-chart compact" role="img" aria-label="Bar chart of year in school"></div>
+        </article>
+
+        <article class="viz-card">
+          <div class="viz-heading">
+            <div><span class="viz-number">03</span><h2>Intended majors</h2></div>
+            <span id="majorSummary" class="viz-summary"></span>
+          </div>
+          <div id="majorChart" class="bar-chart compact" role="img" aria-label="Bar chart of intended majors"></div>
+        </article>
+
+        <article class="viz-card word-card">
+          <div class="viz-heading word-heading">
+            <div><span class="viz-number">04</span><h2 id="presenterQuestion">What environmental issue concerns you most?</h2></div>
+          </div>
+          <svg id="wordCloud" class="word-cloud" viewBox="0 0 1000 420" role="img" aria-label="Word cloud of student answers"></svg>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <button id="qrButton" class="qr-fab" type="button" aria-label="Show student QR code" hidden>
+    <img id="qrThumbnail" alt="QR code for the student response page">
+    <span>Scan to join</span>
+  </button>
+
+  <dialog id="qrDialog" class="qr-dialog">
+    <button class="dialog-close" type="button" data-close-dialog="qrDialog" aria-label="Close">×</button>
+    <div class="eyebrow">Join the class pulse</div>
+    <h2>Scan with your phone</h2>
+    <img id="qrLarge" alt="QR code for the student response page">
+    <p id="studentUrl" class="student-url"></p>
+    <button id="copyLinkButton" class="button button-primary" type="button">Copy student link</button>
+  </dialog>
+
+  <dialog id="sessionDialog" class="session-dialog">
+    <form id="sessionForm" method="dialog">
+      <button class="dialog-close" type="button" data-close-dialog="sessionDialog" aria-label="Close">×</button>
+      <div class="eyebrow">Presenter setup</div>
+      <h2>Start a new class pulse</h2>
+      <p>Starting a new session keeps past responses separate.</p>
+      <label for="sessionQuestion">Word-cloud question</label>
+      <textarea id="sessionQuestion" rows="3" maxlength="160" required>In one or two words, what environmental issue concerns you most?</textarea>
+      <div class="dialog-actions">
+        <button id="cancelSessionButton" class="button button-secondary" type="button">Cancel</button>
+        <button class="button button-primary" type="submit">Start session</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
