@@ -141,6 +141,23 @@ function showOnly(id) {
   });
 }
 
+function showFatalError(error) {
+  console.error(error);
+  setConnection("offline", "Needs refresh");
+  showOnly("loadingView");
+  const heading = els.loadingView.querySelector("h1");
+  const message = els.loadingView.querySelector("p");
+  const loader = els.loadingView.querySelector(".loader");
+  if (loader) loader.hidden = true;
+  if (heading) heading.textContent = "This page didn’t finish loading.";
+  if (message) message.textContent = "Refresh once to load the latest version of the class app.";
+}
+
+window.addEventListener("unhandledrejection", event => showFatalError(event.reason));
+window.addEventListener("error", event => {
+  if (event.error) showFatalError(event.error);
+});
+
 function setConnection(state, label) {
   els.connectionStatus.className = `connection-status ${state}`;
   els.connectionStatus.lastElementChild.textContent = label;
@@ -739,4 +756,4 @@ function showToast(message, duration = 2600) {
   toastTimer = setTimeout(() => { els.toast.hidden = true; }, duration);
 }
 
-start();
+start().catch(showFatalError);
