@@ -636,22 +636,19 @@ function renderBarChart(container, entries, limit) {
 }
 
 function wordFrequencies(answers) {
-  const phrases = new Map();
-  const words = new Map();
+  const frequencies = new Map();
   answers.forEach(raw => {
     const clean = cleanText(raw).toLowerCase().replace(/[^\p{L}\p{N}\s-]/gu, "");
     if (!clean) return;
-    const tokens = clean.split(/\s+/).filter(word => word.length > 2 && !STOP_WORDS.has(word));
-    if (tokens.length <= 3) {
+    const tokens = clean.split(/\s+/).filter(word => word.length > 1 && !STOP_WORDS.has(word));
+    if (tokens.length > 0 && tokens.length <= 4) {
       const phrase = tokens.join(" ");
-      if (phrase) phrases.set(phrase, (phrases.get(phrase) || 0) + 1);
+      frequencies.set(phrase, (frequencies.get(phrase) || 0) + 1);
+    } else {
+      tokens.forEach(word => frequencies.set(word, (frequencies.get(word) || 0) + 1));
     }
-    tokens.forEach(word => words.set(word, (words.get(word) || 0) + 1));
   });
-  const repeatedPhrases = [...phrases].filter(([, count]) => count > 1);
-  const covered = new Set(repeatedPhrases.flatMap(([phrase]) => phrase.split(" ")));
-  const combined = [...repeatedPhrases, ...[...words].filter(([word]) => !covered.has(word))];
-  return combined.sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 34);
+  return [...frequencies].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 34);
 }
 
 function renderWordCloud(answers) {
@@ -668,7 +665,7 @@ function renderWordCloud(answers) {
 
   frequencies.forEach(([word, count], index) => {
     const ratio = maxCount === minCount ? .55 : (count - minCount) / (maxCount - minCount);
-    const size = 20 + ratio * 54;
+    const size = Math.max(16, Math.min(20 + ratio * 54, 820 / Math.max(1, word.length * .55)));
     const boxWidth = word.length * size * .55 + 12;
     const boxHeight = size * 1.1;
     let chosen = null;
