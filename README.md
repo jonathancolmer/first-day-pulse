@@ -13,8 +13,11 @@ The presenter creates a session, clicks the QR code to enlarge it, and students 
 From this folder:
 
 ```sh
+cp firebase-config.example.js firebase-config.js
 python3 -m http.server 8000
 ```
+
+Fill `firebase-config.js` with the public Firebase web configuration before opening the live student view. This ignored file is used only for local development; demo mode does not connect to Firebase.
 
 Then open:
 
@@ -25,9 +28,21 @@ Firebase modules cannot load from a `file://` URL, so use a local server.
 
 ## Deploy on GitHub Pages
 
-Put the contents of this folder at the root of a GitHub repository, enable GitHub Pages for the repository's main branch, then open the published URL with `?role=presenter`.
+The workflow in `.github/workflows/deploy-pages.yml` builds and deploys the site whenever `main` changes. GitHub Pages must use **GitHub Actions** as its publishing source.
 
-The app reuses the Firebase project from the Plot Tournament app and stores its data only below `firstDayClassPulse/`. The Firebase configuration in `app.js` identifies the Firebase project; it is not a secret. Access is controlled by the Realtime Database rules.
+Configure these GitHub Actions repository secrets:
+
+- `FIREBASE_API_KEY`
+- `FIREBASE_AUTH_DOMAIN`
+- `FIREBASE_DATABASE_URL`
+- `FIREBASE_PROJECT_ID`
+- `FIREBASE_STORAGE_BUCKET`
+- `FIREBASE_MESSAGING_SENDER_ID`
+- `FIREBASE_APP_ID`
+
+The workflow generates `firebase-config.js` only inside the deployment artifact. These Firebase web values remain visible to browsers on the published site and should not be treated as authorization credentials. Access is controlled by the Realtime Database rules.
+
+The app reuses the Firebase project from the Plot Tournament app and stores its data only below `firstDayClassPulse/`.
 
 ## Suggested Realtime Database rules
 
@@ -59,7 +74,7 @@ Each new class gets a separate session ID. Past sessions remain in Firebase unti
 
 ## Customize
 
-Edit the `CONFIG` object at the top of `app.js` to change the course name, default word-cloud question, database namespace, or Firebase project. The live question can also be changed each time the presenter starts a new session.
+Edit the `CONFIG` object at the top of `app.js` to change the course name, default word-cloud question, or database namespace. Change Firebase project details in the ignored local `firebase-config.js` and the corresponding GitHub Actions secrets. The live question can also be changed each time the presenter starts a new session.
 
 The app collects no names or email addresses. A random anonymous device ID is kept in the student's browser local storage so they can edit a response without double-counting.
 

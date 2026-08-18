@@ -2,15 +2,7 @@ const CONFIG = {
   courseName: "Economics of Sustainability and the Environment",
   databaseRoot: "firstDayClassPulse",
   defaultQuestion: "In one or two words, what environmental issue concerns you most?",
-  firebase: {
-    apiKey: "AIzaSyDxsTW092AlcZ8MAnqCTIHghnysk2y2eQs",
-    authDomain: "j-colmer.firebaseapp.com",
-    databaseURL: "https://j-colmer-default-rtdb.firebaseio.com",
-    projectId: "j-colmer",
-    storageBucket: "j-colmer.firebasestorage.app",
-    messagingSenderId: "801031852610",
-    appId: "1:801031852610:web:25c1665d1dcdaafe2e53db"
-  }
+  firebase: window.FIRST_DAY_PULSE_FIREBASE_CONFIG || null
 };
 
 const STATES = [
@@ -189,6 +181,7 @@ function deviceId() {
 
 async function initFirebase() {
   try {
+    if (!CONFIG.firebase) throw new Error("Firebase configuration is missing.");
     const appModule = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
     firebase = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
     const app = appModule.initializeApp(CONFIG.firebase);
