@@ -6,7 +6,7 @@ A no-build, static classroom response app with two views:
 - Presenter: append `?role=presenter`
 - Presenter demo (sample data, no database writes): append `?role=presenter&demo=1`
 
-The presenter creates a session, clicks the QR code to enlarge it, and students scan to submit an anonymous response. Results update live. A repeated submission from the same browser edits that browser's existing response rather than adding a duplicate.
+The presenter creates a session, clicks the QR code to enlarge it, and students scan to submit an anonymous response. Results update live. Student origins appear as count-scaled pins on an interactive map, with a ranked list and an automatic bar-chart fallback if the mapping library is unavailable. A repeated submission from the same browser edits that browser's existing response rather than adding a duplicate.
 
 ## Run locally
 
@@ -62,3 +62,5 @@ Each new class gets a separate session ID. Past sessions remain in Firebase unti
 Edit the `CONFIG` object at the top of `app.js` to change the course name, default word-cloud question, database namespace, or Firebase project. The live question can also be changed each time the presenter starts a new session.
 
 The app collects no names or email addresses. A random anonymous device ID is kept in the student's browser local storage so they can edit a response without double-counting.
+
+The presenter map uses [Leaflet](https://leafletjs.com/) with [OpenStreetMap](https://www.openstreetmap.org/) tiles. State and country centroids are embedded in `app.js`; student responses are not sent to a geocoding service.

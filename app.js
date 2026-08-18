@@ -33,6 +33,46 @@ const COUNTRIES = [
   "Turkey", "Ukraine", "United Arab Emirates", "United Kingdom", "Venezuela", "Vietnam", "Zimbabwe"
 ];
 
+const STATE_COORDINATES = Object.freeze({
+  "Alabama": [32.81, -86.79], "Alaska": [64.20, -152.49], "Arizona": [34.05, -111.09],
+  "Arkansas": [34.97, -92.37], "California": [36.78, -119.42], "Colorado": [39.00, -105.50],
+  "Connecticut": [41.60, -72.70], "Delaware": [38.91, -75.53], "District of Columbia": [38.91, -77.04],
+  "Florida": [27.66, -81.52], "Georgia": [32.16, -82.90], "Hawaii": [19.90, -155.58],
+  "Idaho": [44.07, -114.74], "Illinois": [40.00, -89.20], "Indiana": [39.77, -86.16],
+  "Iowa": [42.03, -93.58], "Kansas": [38.50, -98.00], "Kentucky": [37.84, -84.27],
+  "Louisiana": [31.17, -91.87], "Maine": [45.25, -69.45], "Maryland": [39.05, -76.64],
+  "Massachusetts": [42.40, -71.38], "Michigan": [44.31, -85.60], "Minnesota": [46.73, -94.69],
+  "Mississippi": [32.74, -89.67], "Missouri": [38.45, -92.29], "Montana": [46.88, -110.36],
+  "Nebraska": [41.49, -99.90], "Nevada": [38.80, -116.42], "New Hampshire": [43.19, -71.57],
+  "New Jersey": [40.06, -74.40], "New Mexico": [34.52, -105.87], "New York": [43.00, -75.00],
+  "North Carolina": [35.76, -79.02], "North Dakota": [47.55, -101.00], "Ohio": [40.42, -82.91],
+  "Oklahoma": [35.47, -97.52], "Oregon": [43.80, -120.55], "Pennsylvania": [41.20, -77.19],
+  "Rhode Island": [41.58, -71.48], "South Carolina": [33.84, -80.90], "South Dakota": [44.30, -100.37],
+  "Tennessee": [35.52, -86.58], "Texas": [31.00, -99.90], "Utah": [39.32, -111.09],
+  "Vermont": [44.00, -72.70], "Virginia": [37.43, -78.66], "Washington": [47.40, -120.74],
+  "West Virginia": [38.60, -80.45], "Wisconsin": [44.50, -89.50], "Wyoming": [43.08, -107.29],
+  "Puerto Rico": [18.22, -66.59]
+});
+
+const COUNTRY_COORDINATES = Object.freeze({
+  "Argentina": [-34, -64], "Australia": [-27, 133], "Austria": [47.33, 13.33],
+  "Bangladesh": [24, 90], "Belgium": [50.83, 4], "Brazil": [-10, -55], "Canada": [60, -95],
+  "Chile": [-30, -71], "China": [35, 105], "Colombia": [4, -72], "Costa Rica": [10, -84],
+  "Denmark": [56, 10], "Ecuador": [-2, -77.5], "Egypt": [27, 30], "Ethiopia": [8, 38],
+  "France": [46, 2], "Germany": [51, 9], "Ghana": [8, -2], "Greece": [39, 22],
+  "Guatemala": [15.5, -90.25], "Hong Kong": [22.27, 114.19], "India": [20, 77],
+  "Indonesia": [-5, 120], "Iran": [32, 53], "Ireland": [53, -8], "Israel": [31.47, 35.13],
+  "Italy": [42.83, 12.83], "Japan": [36, 138], "Jordan": [31, 36], "Kenya": [1, 38],
+  "Malaysia": [2.5, 112.5], "Mexico": [23, -102], "Morocco": [32, -5], "Nepal": [28, 84],
+  "Netherlands": [52.5, 5.75], "New Zealand": [-41, 174], "Nigeria": [10, 8], "Norway": [62, 10],
+  "Pakistan": [30, 70], "Peru": [-10, -76], "Philippines": [13, 122], "Poland": [52, 20],
+  "Portugal": [39.5, -8], "Russia": [60, 100], "Saudi Arabia": [25, 45], "Singapore": [1.37, 103.8],
+  "South Africa": [-29, 24], "South Korea": [37, 127.5], "Spain": [40, -4], "Sri Lanka": [7, 81],
+  "Sweden": [62, 15], "Switzerland": [47, 8], "Taiwan": [23.5, 121], "Thailand": [15, 100],
+  "Turkey": [39, 35], "Ukraine": [49, 32], "United Arab Emirates": [24, 54],
+  "United Kingdom": [54, -2], "Venezuela": [8, -66], "Vietnam": [16.17, 107.83], "Zimbabwe": [-20, 30]
+});
+
 const MAJORS = [
   "African American and African Studies", "Anthropology", "Architecture", "Biology", "Biomedical Engineering",
   "Chemistry", "Civil Engineering", "Commerce", "Computer Science", "Data Science", "Economics", "Education",
@@ -60,7 +100,8 @@ const els = Object.fromEntries([
   "connectionStatus", "pulseForm", "state", "stateField", "country", "countryField", "yearChoices", "major",
   "answer", "answerCount", "questionLabel", "formError", "submitButton", "editResponseButton", "responseCount",
   "responseNoun", "toggleCollectionButton", "downloadButton", "newSessionButton", "noResponses", "dashboard",
-  "locationChart", "yearChart", "majorChart", "locationSummary", "majorSummary", "presenterQuestion", "wordCloud",
+  "originMap", "originList", "locationFallback", "unmappedNotice", "yearChart", "majorChart", "locationSummary",
+  "majorSummary", "presenterQuestion", "wordCloud",
   "qrButton", "qrThumbnail", "qrDialog", "qrLarge", "studentUrl", "copyLinkButton", "sessionDialog", "sessionForm",
   "sessionQuestion", "cancelSessionButton", "toast"
 ].map(id => [id, document.getElementById(id)]));
@@ -74,6 +115,8 @@ let unsubscribeResponses = null;
 let unsubscribeSessionMeta = null;
 let unsubscribeOwnResponse = null;
 let toastTimer = null;
+let originMap = null;
+let originLayer = null;
 
 const DEMO_RESPONSES = {
   a1: { locationType: "state", location: "Virginia", year: "Third year", major: "Economics", answer: "Climate change" },
@@ -419,10 +462,10 @@ function renderPresenter() {
   updateQr();
   if (!data.length) return;
 
-  const locations = countBy(data, item => item.location);
+  const origins = countOrigins(data);
   const years = countBy(data, item => item.year, YEAR_ORDER);
   const majors = countBy(data, item => normalizedMajor(item.major));
-  renderBarChart(els.locationChart, locations, 12);
+  renderOriginMap(origins);
   renderBarChart(els.yearChart, years, YEAR_ORDER.length);
   renderBarChart(els.majorChart, majors, 9);
   const stateCount = data.filter(item => item.locationType === "state").length;
@@ -430,6 +473,108 @@ function renderPresenter() {
   els.locationSummary.textContent = `${stateCount} U.S. · ${countryCount} international`;
   els.majorSummary.textContent = `${majors.length} distinct`;
   renderWordCloud(data.map(item => item.answer));
+}
+
+function countOrigins(data) {
+  const counts = new Map();
+  data.forEach(item => {
+    if (!item.location) return;
+    const type = item.locationType === "country" ? "country" : "state";
+    const key = `${type}:${item.location}`;
+    const existing = counts.get(key) || { label: item.location, type, value: 0 };
+    existing.value += 1;
+    counts.set(key, existing);
+  });
+  return [...counts.values()].sort((a, b) => b.value - a.value || a.label.localeCompare(b.label));
+}
+
+function coordinatesForOrigin(origin) {
+  return origin.type === "state" ? STATE_COORDINATES[origin.label] : COUNTRY_COORDINATES[origin.label];
+}
+
+function renderOriginMap(entries) {
+  renderOriginList(entries);
+  const mapped = entries.map(origin => ({ ...origin, coordinates: coordinatesForOrigin(origin) })).filter(origin => origin.coordinates);
+  const unmapped = entries.filter(origin => !coordinatesForOrigin(origin));
+  els.unmappedNotice.hidden = unmapped.length === 0;
+  els.unmappedNotice.textContent = unmapped.length
+    ? `${unmapped.map(item => item.label).join(", ")} ${unmapped.length === 1 ? "is" : "are"} listed but not pinned.`
+    : "";
+
+  if (!window.L) {
+    els.originMap.closest(".map-frame").hidden = true;
+    els.locationFallback.hidden = false;
+    renderBarChart(els.locationFallback, entries, 12);
+    return;
+  }
+
+  els.originMap.closest(".map-frame").hidden = false;
+  els.locationFallback.hidden = true;
+  if (!originMap) {
+    originMap = window.L.map(els.originMap, {
+      worldCopyJump: true,
+      minZoom: 1,
+      maxZoom: 7,
+      scrollWheelZoom: false
+    }).setView([24, 0], 2);
+    window.L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 7,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(originMap);
+    originLayer = window.L.layerGroup().addTo(originMap);
+  }
+
+  originLayer.clearLayers();
+  mapped.forEach(origin => {
+    const size = Math.min(50, 29 + Math.sqrt(Math.max(0, origin.value - 1)) * 8);
+    const icon = window.L.divIcon({
+      className: "origin-pin-wrapper",
+      html: `<div class="origin-pin ${origin.type}"><span>${origin.value}</span></div>`,
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size]
+    });
+    const marker = window.L.marker(origin.coordinates, {
+      icon,
+      title: `${origin.label}: ${origin.value}`,
+      alt: `${origin.label}: ${origin.value} ${origin.value === 1 ? "student" : "students"}`,
+      keyboard: true
+    }).addTo(originLayer);
+    const tooltip = document.createElement("span");
+    tooltip.textContent = `${origin.label} · ${origin.value}`;
+    marker.bindTooltip(tooltip, { direction: "top", className: "origin-tooltip", offset: [0, -size + 5] });
+  });
+
+  requestAnimationFrame(() => {
+    originMap.invalidateSize();
+    if (mapped.length === 1) {
+      originMap.setView(mapped[0].coordinates, mapped[0].type === "state" ? 4 : 3);
+    } else if (mapped.length > 1) {
+      const bounds = window.L.latLngBounds(mapped.map(origin => origin.coordinates));
+      originMap.fitBounds(bounds.pad(.22), { maxZoom: 4 });
+    } else {
+      originMap.setView([24, 0], 2);
+    }
+  });
+}
+
+function renderOriginList(entries) {
+  els.originList.replaceChildren();
+  entries.slice(0, 9).forEach(origin => {
+    const row = document.createElement("div");
+    row.className = "origin-row";
+    const name = document.createElement("div");
+    name.className = "origin-name";
+    name.textContent = origin.label;
+    const kind = document.createElement("span");
+    kind.className = "origin-kind";
+    kind.textContent = origin.type === "state" ? "U.S. state" : "Country";
+    name.append(kind);
+    const count = document.createElement("span");
+    count.className = "origin-count";
+    count.textContent = origin.value;
+    row.append(name, count);
+    els.originList.append(row);
+  });
 }
 
 function countBy(data, accessor, fixedOrder = null) {

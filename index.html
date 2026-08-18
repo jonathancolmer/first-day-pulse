@@ -7,6 +7,8 @@
   <meta name="description" content="A live first-day class poll for Economics of Sustainability and the Environment.">
   <title>First-Day Class Pulse</title>
   <link rel="preconnect" href="https://www.gstatic.com">
+  <link rel="preconnect" href="https://tile.openstreetmap.org">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -153,7 +155,21 @@
             <div><span class="viz-number">01</span><h2>Where we’re from</h2></div>
             <span id="locationSummary" class="viz-summary"></span>
           </div>
-          <div id="locationChart" class="bar-chart" role="img" aria-label="Bar chart of student origins"></div>
+          <div class="origin-map-layout">
+            <div class="map-frame">
+              <div id="originMap" class="origin-map" role="img" aria-label="Map showing where students are from"></div>
+              <div class="map-legend" aria-hidden="true">
+                <span><i class="legend-dot state-dot"></i>U.S. state</span>
+                <span><i class="legend-dot country-dot"></i>Country</span>
+              </div>
+            </div>
+            <aside class="origin-ranking" aria-label="Most common student origins">
+              <h3>Top origins</h3>
+              <div id="originList" class="origin-list"></div>
+              <p id="unmappedNotice" class="unmapped-notice" hidden></p>
+            </aside>
+          </div>
+          <div id="locationFallback" class="bar-chart location-fallback" role="img" aria-label="Bar chart of student origins" hidden></div>
         </article>
 
         <article class="viz-card">
@@ -212,6 +228,7 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script type="module" src="app.js"></script>
 </body>
 </html>

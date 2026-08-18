@@ -167,6 +167,35 @@ input[type="text"]:focus, select:focus, textarea:focus { border-color: var(--ora
 .viz-summary { color: var(--muted); font-size: 12px; }
 .word-heading { margin-bottom: 5px; }
 
+.origin-map-layout { display: grid; grid-template-columns: minmax(0, 4fr) minmax(190px, 1fr); gap: 22px; }
+.map-frame { min-width: 0; position: relative; overflow: hidden; border: 1px solid #d9dde5; border-radius: 14px; background: #e9edf0; }
+.origin-map { width: 100%; height: clamp(360px, 42vw, 590px); z-index: 0; }
+.origin-map .leaflet-tile-pane { filter: grayscale(.88) saturate(.5) contrast(.9) brightness(1.04); }
+.origin-map .leaflet-control-zoom a { color: var(--navy); }
+.origin-map .leaflet-control-attribution { color: #707785; background: rgba(255,255,255,.82); font-size: 9px; }
+.origin-map .leaflet-control-attribution a { color: var(--navy); }
+.origin-map .leaflet-tooltip.origin-tooltip { padding: 7px 10px; color: var(--navy); border: 0; border-radius: 7px; box-shadow: 0 5px 18px rgba(20,29,54,.18); font-size: 12px; font-weight: 750; }
+.origin-pin-wrapper { background: transparent; border: 0; }
+.origin-pin { width: 100%; height: 100%; display: grid; place-items: center; border: 3px solid white; border-radius: 50% 50% 50% 12%; transform: rotate(-45deg); box-shadow: 0 5px 14px rgba(20,29,54,.28); }
+.origin-pin.state { background: var(--orange); }
+.origin-pin.country { background: var(--teal); }
+.origin-pin > span { color: white; transform: rotate(45deg); font-size: 12px; font-weight: 850; line-height: 1; }
+.map-legend { padding: 7px 10px; position: absolute; left: 10px; bottom: 10px; z-index: 500; display: flex; gap: 12px; border: 1px solid rgba(35,45,75,.1); border-radius: 7px; background: rgba(255,255,255,.9); color: var(--muted); font-size: 10px; font-weight: 700; box-shadow: 0 3px 12px rgba(20,29,54,.08); }
+.map-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend-dot { width: 8px; height: 8px; display: inline-block; border-radius: 50%; }
+.state-dot { background: var(--orange); }
+.country-dot { background: var(--teal); }
+.origin-ranking { min-width: 0; padding: 8px 2px; }
+.origin-ranking h3 { margin: 0 0 14px; color: var(--navy); font-family: Georgia, serif; font-size: 18px; }
+.origin-list { display: grid; gap: 7px; }
+.origin-row { padding-bottom: 7px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 9px; align-items: center; border-bottom: 1px solid #eceef2; }
+.origin-row:last-child { border-bottom: 0; }
+.origin-name { min-width: 0; color: var(--ink); font-size: 12px; font-weight: 750; overflow-wrap: anywhere; }
+.origin-kind { margin-top: 2px; display: block; color: var(--muted); font-size: 9px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase; }
+.origin-count { width: 29px; height: 29px; display: grid; place-items: center; color: white; background: var(--navy); border-radius: 50%; font-family: Georgia, serif; font-size: 14px; font-weight: 700; }
+.unmapped-notice { margin: 15px 0 0; padding: 9px 10px; color: #75510c; background: #fff7df; border-radius: 7px; font-size: 10px; line-height: 1.4; }
+.location-fallback { margin-top: 10px; }
+
 .bar-chart { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); align-items: end; gap: clamp(7px, 1vw, 15px); min-height: 230px; }
 .bar-chart.compact { min-height: 245px; }
 .bar-item { min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch; }
@@ -207,6 +236,9 @@ dialog::backdrop { background: rgba(20,29,54,.84); backdrop-filter: blur(4px); }
   .presenter-actions { grid-column: 1 / -1; justify-content: flex-start; }
   .dashboard { grid-template-columns: 1fr; }
   .location-card, .word-card { grid-column: auto; }
+  .origin-map-layout { grid-template-columns: 1fr; }
+  .origin-ranking { padding: 0; }
+  .origin-list { grid-template-columns: 1fr 1fr; }
 }
 
 @media (max-width: 620px) {
@@ -226,6 +258,9 @@ dialog::backdrop { background: rgba(20,29,54,.84); backdrop-filter: blur(4px); }
   .response-total { width: 112px; }
   .presenter-actions { grid-column: auto; }
   .viz-card { padding: 20px 14px; }
+  .origin-map { height: 380px; }
+  .origin-list { grid-template-columns: 1fr; }
+  .map-legend { right: 8px; left: auto; bottom: 8px; }
   .bar-chart { grid-template-columns: repeat(auto-fit, minmax(58px, 1fr)); gap: 5px; overflow-x: auto; }
   .bar-track { height: 125px; }
   .bar-label { font-size: 10px; }
